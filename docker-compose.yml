@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: tourist-chat-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: tourist-chat
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db

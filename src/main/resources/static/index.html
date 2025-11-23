@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Tourist Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header, footer {
+            padding: 8px 12px;
+            background: #f0f0f0;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 8px 12px;
+        }
+        #messages {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 8px;
+            overflow-y: auto;
+            margin-bottom: 8px;
+            background: #fafafa;
+        }
+        #messages .msg {
+            margin-bottom: 4px;
+        }
+        #messages .author {
+            font-weight: bold;
+        }
+        #input-row {
+            display: flex;
+            gap: 4px;
+        }
+        #input-row input[type="text"] {
+            flex: 1;
+        }
+        label {
+            margin-right: 8px;
+        }
+        .row {
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <strong>Tourist chat</strong>
+</header>
+
+<main>
+    <div class="row">
+        <label>
+            Nickname:
+            <input type="text" id="nickname" placeholder="Your nick">
+        </label>
+
+        <label>
+            Room:
+            <select id="room">
+                <option value="World">World</option>
+                <option value="Europe" selected>Europe</option>
+                <option value="Asia">Asia</option>
+                <option value="CityTips">City tips</option>
+            </select>
+        </label>
+
+        <button id="connectBtn">Join</button>
+        <button id="disconnectBtn" disabled>Leave</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <div id="input-row">
+        <input type="text" id="messageInput" placeholder="Type your message..." disabled>
+        <button id="sendBtn" disabled>Send</button>
+    </div>
+</main>
+
+<footer>
+    Simple demo: Spring Boot + WebSocket (STOMP) + MongoDB
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script>
+    let stompClient = null;
+    let currentRoom = null;
+
+    const nicknameInput = document.getElementById('nickname');
+    const roomSelect = document.getElementById('room');
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function logMessage(msg) {
+        const p = document.createElement('div');
+        p.textContent = msg;
+        p.style.color = '#777';
+        p.style.fontStyle = 'italic';
+        messagesDiv.appendChild(p);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function addChatMessage(message) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'msg';
+
+        const authorSpan = document.createElement('span');
+        authorSpan.className = 'author';
+        authorSpan.textContent = message.author + ': ';
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = message.text;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.style.color = '#888';
+        timeSpan.style.fontSize = '0.8em';
+        const t = message.sentAt ? new Date(message.sentAt) : new Date();
+        timeSpan.textContent = ' [' + t.toLocaleTimeString() + ']';
+
+        wrapper.appendChild(authorSpan);
+        wrapper.appendChild(textSpan);
+        wrapper.appendChild(timeSpan);
+
+        messagesDiv.appendChild(wrapper);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function connect() {
+        const nick = nicknameInput.value.trim() || 'Guest' + Math.floor(Math.random() * 1000);
+        const room = roomSelect.value;
+
+        const socket = new SockJS('/ws-chat');
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({}, frame => {
+            currentRoom = room;
+            logMessage('Connected as ' + nick + ' to room ' + room);
+
+            stompClient.subscribe('/topic/rooms/' + room, msg => {
+                const body = JSON.parse(msg.body);
+                addChatMessage(body);
+            });
+
+            fetch('/api/chat/rooms/' + room + '/history?limit=20')
+                .then(r => r.json())
+                .then(history => {
+                    messagesDiv.innerHTML = '';
+                    history.forEach(addChatMessage);
+                });
+
+            connectBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+        }, error => {
+            console.error(error);
+            logMessage('Connection error');
+        });
+    }
+
+    function disconnect() {
+        if (stompClient) {
+            stompClient.disconnect(() => {
+                logMessage('Disconnected');
+            });
+            stompClient = null;
+        }
+        currentRoom = null;
+        connectBtn.disabled = false;
+        disconnectBtn.disabled = true;
+        messageInput.disabled = true;
+        sendBtn.disabled = true;
+    }
+
+    function sendMessage() {
+        if (!stompClient || !currentRoom) {
+            return;
+        }
+        const text = messageInput.value.trim();
+        if (!text) {
+            return;
+        }
+        const payload = {
+            nickname: nicknameInput.value.trim() || 'Guest',
+            text: text
+        };
+        stompClient.send('/app/chat/' + currentRoom, {}, JSON.stringify(payload));
+        messageInput.value = '';
+    }
+
+    connectBtn.addEventListener('click', connect);
+    disconnectBtn.addEventListener('click', disconnect);
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+</script>
+
+</body>
+</html>
