@@ -1,6 +1,6 @@
-package org.example.mtspd.data.dto;
+package org.example.mtspd.domain.dto;
 
-import org.example.mtspd.data.entity.ChatMessage;
+import org.example.mtspd.domain.entity.ChatMessage;
 
 import java.time.Instant;
 

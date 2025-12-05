@@ -1,9 +1,9 @@
-package org.example.mtspd.data.entity;
+package org.example.mtspd.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -11,14 +11,13 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "user_sessions")
-public class UserSession {
+@Document(collection = "rooms")
+public class ChatRoom {
 
     @Id
     private String id;
-    private String nickname;
-    private String roomId;
-    private Instant connectedAt;
-    private Instant lastActive;
+    private String name;
+    private String description;
+    private Instant createdAt;
 
 }

@@ -1,9 +1,8 @@
 package org.example.mtspd.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.mtspd.data.dto.ChatInboundMessage;
-import org.example.mtspd.data.dto.ChatMessageDto;
-import org.example.mtspd.data.dto.SendMessageRequest;
+import org.example.mtspd.domain.dto.ChatInboundMessage;
+import org.example.mtspd.domain.dto.ChatMessageDto;
 import org.example.mtspd.service.impl.ChatService;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;

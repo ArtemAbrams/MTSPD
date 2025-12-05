@@ -1,7 +1,7 @@
 package org.example.mtspd;
 
-import org.example.mtspd.data.dto.ChatMessageDto;
-import org.example.mtspd.data.entity.ChatMessage;
+import org.example.mtspd.domain.dto.ChatMessageDto;
+import org.example.mtspd.domain.entity.ChatMessage;
 import org.example.mtspd.repo.ChatMessageRepository;
 import org.example.mtspd.service.MessageFilter;
 import org.example.mtspd.service.impl.ChatService;
@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

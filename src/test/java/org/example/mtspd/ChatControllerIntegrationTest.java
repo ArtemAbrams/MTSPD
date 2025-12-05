@@ -1,6 +1,6 @@
 package org.example.mtspd;
 
-import org.example.mtspd.data.dto.ChatMessageDto;
+import org.example.mtspd.domain.dto.ChatMessageDto;
 import org.example.mtspd.repo.ChatMessageRepository;
 import org.example.mtspd.service.impl.ChatService;
 import org.junit.jupiter.api.AfterEach;

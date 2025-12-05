@@ -1,8 +1,8 @@
 package org.example.mtspd.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.mtspd.data.dto.ChatMessageDto;
-import org.example.mtspd.data.entity.ChatMessage;
+import org.example.mtspd.domain.dto.ChatMessageDto;
+import org.example.mtspd.domain.entity.ChatMessage;
 import org.example.mtspd.repo.ChatMessageRepository;
 import org.example.mtspd.service.MessageFilter;
 import org.springframework.stereotype.Service;

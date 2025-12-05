@@ -11,3 +11,14 @@ services:
       - "27017:27017"
     volumes:
       - ./data/mongo:/data/db
+
+  app:
+    build: .
+    container_name: tourist-chat-app
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
